@@ -313,6 +313,66 @@ input:checked + .tog-s::before { transform: translateX(20px); }
   pointer-events: none; z-index: 999; letter-spacing: 1px;
 }
 
+
+/* ── RULES SCREEN ── */
+.rule-tab {
+  padding: 7px 16px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--dim); font-family: inherit;
+  font-size: .82rem; font-weight: 700; cursor: pointer; transition: all .2s;
+}
+.rule-tab:hover { border-color: var(--cyan); color: var(--cyan); }
+.rule-tab.active { background: rgba(0,229,255,.12); border-color: var(--cyan); color: var(--cyan); }
+.rule-panel { display: none; }
+.rule-panel.active { display: block; }
+.rule-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  overflow: hidden;
+}
+.rule-card-head {
+  padding: 10px 16px; font-size: .88rem; font-weight: 700;
+  background: rgba(255,255,255,.04); border-bottom: 1px solid var(--border);
+  color: #e0eef8;
+}
+.rule-card-head.night { background: rgba(100,120,200,.12); color: #9ab4ff; border-color: rgba(100,120,200,.25); }
+.rule-card-head.day   { background: rgba(255,215,0,.10);   color: var(--gold); border-color: rgba(255,215,0,.2); }
+.rule-card-body { padding: 14px 16px; }
+.rule-step {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,.04);
+  font-size: .85rem; line-height: 1.55;
+}
+.rule-step:last-child { border-bottom: none; }
+.rule-step-n {
+  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+  background: var(--cyan); color: #000; font-size: .72rem; font-weight: 900;
+  display: flex; align-items: center; justify-content: center; margin-top: 1px;
+}
+.rule-step-n.tip { background: transparent; font-size: .95rem; width: 22px; height: 22px; }
+.rule-itx {
+  padding: 9px 12px; background: var(--surface2); border-radius: 9px;
+  border: 1px solid var(--border); margin-bottom: 8px;
+}
+.rule-itx:last-child { margin-bottom: 0; }
+.rule-itx-title { font-size: .82rem; font-weight: 700; margin-bottom: 3px; }
+.rule-itx-desc  { font-size: .78rem; color: var(--dim); line-height: 1.5; }
+
+/* role card in rules grid */
+.rcard {
+  background: var(--surface); border: 2px solid var(--border); border-radius: 14px;
+  overflow: hidden; display: flex; flex-direction: column;
+  transition: border-color .2s, box-shadow .2s;
+}
+.rcard:hover { border-color: var(--cyan); box-shadow: 0 0 16px rgba(0,229,255,.15); }
+.rcard.bact   { border-color: rgba(255,59,92,.35); }
+.rcard.bact:hover { border-color: var(--red); }
+.rcard-img  { width: 100%; aspect-ratio: 2/3; object-fit: cover; object-position: center top; display: block; }
+.rcard-body { padding: 10px 12px 14px; flex: 1; }
+.rcard-name { font-size: .95rem; font-weight: 900; margin-bottom: 3px; }
+.rcard-team { font-size: .7rem; font-weight: 700; margin-bottom: 7px; }
+.rcard-desc { font-size: .75rem; color: var(--dim); line-height: 1.55; margin-bottom: 8px; }
+.rcard-ability { font-size: .72rem; padding: 5px 9px; background: var(--surface2);
+  border-radius: 7px; border: 1px solid var(--border); color: #c8dde8; }
+
 @keyframes slideIn { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
 @keyframes fadeUp  { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
 @keyframes pulse-q { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.7;transform:scale(.96)} }
@@ -336,6 +396,122 @@ input:checked + .tog-s::before { transform: translateX(20px); }
       <button class="btn btn-p" style="font-size:1.1rem;padding:16px 32px" onclick="showScreen('s-setup')">게임 시작 🚀</button>
       <button class="btn btn-s" style="font-size:1rem"                      onclick="showScreen('s-env')">⚙️ 환경 설정</button>
       <button class="btn btn-g" style="font-size:1rem"                      onclick="openRecords()">📋 전적 보기</button>
+      <button class="btn btn-g" style="font-size:1rem"                      onclick="showScreen('s-rules')">📖 직업 및 규칙 설명</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ RULES ══════════════════════ -->
+<div class="screen" id="s-rules" style="overflow:hidden">
+  <div class="topbar">
+    <button class="btn btn-g" style="padding:7px 16px" onclick="showScreen('s-lobby')">← 뒤로</button>
+    <div class="topbar-title">📖 직업 및 규칙 설명</div>
+    <!-- Tab buttons -->
+    <div style="display:flex;gap:6px;margin-left:auto">
+      <button class="rule-tab active" id="tab-roles" onclick="switchRuleTab('roles')">🎭 직업 소개</button>
+      <button class="rule-tab" id="tab-flow" onclick="switchRuleTab('flow')">📋 게임 진행</button>
+      <button class="rule-tab" id="tab-win" onclick="switchRuleTab('win')">🏆 승리 조건</button>
+    </div>
+  </div>
+
+  <!-- PANEL: 직업 소개 -->
+  <div class="rule-panel active" id="rp-roles" style="flex:1;overflow-y:auto;min-height:0">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,18vw),1fr));gap:16px;padding-bottom:20px" id="roles-grid"></div>
+  </div>
+
+  <!-- PANEL: 게임 진행 -->
+  <div class="rule-panel" id="rp-flow" style="flex:1;overflow-y:auto;min-height:0">
+    <div style="max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:20px;padding-bottom:20px">
+
+      <div class="rule-card">
+        <div class="rule-card-head night">🌙 밤 단계</div>
+        <div class="rule-card-body">
+          <div class="rule-step"><span class="rule-step-n">1</span><span>모든 플레이어가 눈을 감습니다.</span></div>
+          <div class="rule-step"><span class="rule-step-n">2</span><span><strong>병균</strong>이 호명되어 공격할 기관을 선택합니다.</span></div>
+          <div class="rule-step"><span class="rule-step-n">3</span><span><strong>감각기관</strong>이 호명되어 병균 여부를 확인합니다.</span></div>
+          <div class="rule-step"><span class="rule-step-n">4</span><span><strong>면역력</strong>이 호명되어 보호할 기관을 선택합니다.</span></div>
+          <div class="rule-step"><span class="rule-step-n">5</span><span><strong>뼈와근육</strong>이 1라운드 밤에만 호명되어 경호 대상을 정합니다.</span></div>
+          <div class="rule-step"><span class="rule-step-n tip">💡</span><span style="color:var(--dim)">죽은 기관도 순서에 포함될 수 있습니다. (환경 설정에서 변경 가능)</span></div>
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <div class="rule-card-head day">☀️ 낮 단계</div>
+        <div class="rule-card-body">
+          <div class="rule-step"><span class="rule-step-n">1</span><span>밤 사이 일어난 일을 공개합니다.</span></div>
+          <div class="rule-step"><span class="rule-step-n">2</span><span>모든 플레이어가 자유롭게 토론합니다. <span style="color:var(--gold)">(타이머 진행)</span></span></div>
+          <div class="rule-step"><span class="rule-step-n">3</span><span>한 명씩 돌아가며 투표합니다. 가장 많은 표를 받은 플레이어가 탈락합니다.</span></div>
+          <div class="rule-step"><span class="rule-step-n">4</span><span>동점이면 아무도 탈락하지 않습니다.</span></div>
+          <div class="rule-step"><span class="rule-step-n tip">⚠️</span><span style="color:var(--red)">일반 기관이 사망(밤·투표)하면 다음 낮 토론 시간이 줄어듭니다!</span></div>
+        </div>
+      </div>
+
+      <div class="rule-card" style="grid-column:1/-1">
+        <div class="rule-card-head" style="background:rgba(168,85,247,.15);color:var(--purple);border-color:rgba(168,85,247,.3)">🛡️ 특수 상호작용</div>
+        <div class="rule-card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="rule-itx">
+            <div class="rule-itx-title">면역력이 병균 공격 대상을 보호</div>
+            <div class="rule-itx-desc">→ 공격이 무효화되어 아무도 사망하지 않습니다.</div>
+          </div>
+          <div class="rule-itx">
+            <div class="rule-itx-title">뼈와근육의 경호 대상이 공격받음</div>
+            <div class="rule-itx-desc">→ 뼈와근육이 대신 사망합니다. (낮 투표로는 보호 불가)</div>
+          </div>
+          <div class="rule-itx">
+            <div class="rule-itx-title">면역력이 뼈와근육을 보호 + 공격 대신 받음</div>
+            <div class="rule-itx-desc">→ 뼈와근육도 살아남습니다.</div>
+          </div>
+          <div class="rule-itx">
+            <div class="rule-itx-title">감각기관이 병균을 조사</div>
+            <div class="rule-itx-desc">→ 화면에서만 확인 가능. 한 번 확인하면 그 밤엔 재선택 불가.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL: 승리 조건 -->
+  <div class="rule-panel" id="rp-win" style="flex:1;overflow-y:auto;min-height:0">
+    <div style="max-width:800px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:20px;padding-bottom:20px">
+      <div class="rule-card" style="border-color:rgba(0,229,255,.3)">
+        <div class="rule-card-head" style="background:rgba(0,229,255,.12);color:var(--cyan);border-color:rgba(0,229,255,.3)">💙 우리 몸 팀 승리</div>
+        <div class="rule-card-body">
+          <div style="font-size:3rem;text-align:center;margin:16px 0">🏥</div>
+          <div style="font-size:1rem;font-weight:700;text-align:center;margin-bottom:12px;color:var(--cyan)">모든 병균을 제거하면 승리!</div>
+          <div class="rule-itx" style="background:rgba(0,229,255,.05);border-color:rgba(0,229,255,.2)">
+            <div class="rule-itx-desc" style="color:#c8dde8">살아있는 병균이 0명이 되는 순간, 낮이든 밤이든 즉시 게임이 종료됩니다.</div>
+          </div>
+          <div style="margin-top:14px">
+            <div style="font-size:.82rem;color:var(--dim);margin-bottom:6px">우리 몸 팀 구성원:</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              <span style="font-size:.78rem;padding:3px 10px;border-radius:8px;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.2);color:var(--cyan)">👁️ 감각기관</span>
+              <span style="font-size:.78rem;padding:3px 10px;border-radius:8px;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.2);color:var(--cyan)">🛡️ 면역력</span>
+              <span style="font-size:.78rem;padding:3px 10px;border-radius:8px;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.2);color:var(--cyan)">💪 뼈와근육</span>
+              <span style="font-size:.78rem;padding:3px 10px;border-radius:8px;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.2);color:var(--cyan)">🌊 배설기관</span>
+              <span style="font-size:.78rem;padding:3px 10px;border-radius:8px;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.2);color:var(--cyan)">🍎 소화기관</span>
+              <span style="font-size:.78rem;padding:3px 10px;border-radius:8px;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.2);color:var(--cyan)">💓 순환기관</span>
+              <span style="font-size:.78rem;padding:3px 10px;border-radius:8px;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.2);color:var(--cyan)">🌬️ 호흡기관</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rule-card" style="border-color:rgba(255,59,92,.4)">
+        <div class="rule-card-head" style="background:rgba(255,59,92,.12);color:var(--red);border-color:rgba(255,59,92,.3)">🦠 병균 팀 승리</div>
+        <div class="rule-card-body">
+          <div style="font-size:3rem;text-align:center;margin:16px 0">☠️</div>
+          <div style="font-size:1rem;font-weight:700;text-align:center;margin-bottom:12px;color:var(--red)">병균 수 ≥ 나머지 기관 수면 승리!</div>
+          <div class="rule-itx" style="background:rgba(255,59,92,.05);border-color:rgba(255,59,92,.2)">
+            <div class="rule-itx-desc" style="color:#c8dde8">살아있는 병균의 수가 살아있는 일반 기관의 수 이상이 되면 즉시 승리합니다.</div>
+          </div>
+          <div style="margin-top:14px">
+            <div style="font-size:.82rem;color:var(--dim);margin-bottom:6px">병균 팀 전략:</div>
+            <div class="rule-itx" style="background:rgba(255,59,92,.05);border-color:rgba(255,59,92,.2)">
+              <div class="rule-itx-desc" style="color:#c8dde8">낮에 시민들이 서로를 의심하게 만들고, 밤에는 특수 능력자(감각기관·면역력)를 우선 제거하는 것이 유리합니다.</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -750,6 +926,38 @@ let settings = {
 let pNames = ['','','',''];
 let bCnt = 1;
 let game = {};
+
+// ══════════════════════════════════════════════
+//  RULES SCREEN
+// ══════════════════════════════════════════════
+function switchRuleTab(tab) {
+  ['roles','flow','win'].forEach(t => {
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('rp-'+t).classList.toggle('active', t===tab);
+  });
+}
+
+function buildRolesGrid() {
+  const grid = document.getElementById('roles-grid');
+  if (grid.dataset.built) return;
+  grid.dataset.built = '1';
+  const order = ['bacteria','police','doctor','bodyguard','excretory','digestive','circulatory','respiratory'];
+  grid.innerHTML = order.map(key => {
+    const r = R[key];
+    const img = ROLE_IMG[key] || '';
+    const isBact = r.team === 'B';
+    return '<div class="rcard'+(isBact?' bact':'')+'">' +
+      (img ? '<img class="rcard-img" src="'+img+'">' : '<div style="aspect-ratio:2/3;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:3rem">'+r.icon+'</div>') +
+      '<div class="rcard-body">' +
+        '<div class="rcard-name">'+r.icon+' '+r.name+'</div>' +
+        '<div class="rcard-team" style="color:'+(isBact?'var(--red)':'var(--cyan)')+'">'+(isBact?'⚠️ 병균 팀':'💙 우리 몸 팀')+'</div>' +
+        '<div class="rcard-desc">'+r.desc+'</div>' +
+        '<div class="rcard-ability">능력: '+r.ability+'</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
 // ══════════════════════════════════════════════
 //  GAME LOG & RECORDS
 // ══════════════════════════════════════════════
@@ -1472,6 +1680,7 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
+  if (id === 's-rules') buildRolesGrid();
 }
 function shuffle(a) {
   for (let i=a.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
